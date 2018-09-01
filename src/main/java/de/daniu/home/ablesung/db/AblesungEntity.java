@@ -1,6 +1,7 @@
 package de.daniu.home.ablesung.db;
 
 import de.daniu.home.ablesung.Ablesung;
+import de.daniu.home.ablesung.AblesungsArt;
 import lombok.Data;
 
 import javax.persistence.Entity;
@@ -21,4 +22,6 @@ public class AblesungEntity implements Ablesung {
     private LocalDate datum;
     @NotNull
     private BigDecimal wert;
+    @NotNull
+    private AblesungsArt ablesungsArt;
 }

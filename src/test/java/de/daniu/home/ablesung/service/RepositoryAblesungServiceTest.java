@@ -1,6 +1,7 @@
 package de.daniu.home.ablesung.service;
 
 import de.daniu.home.ablesung.Ablesung;
+import de.daniu.home.ablesung.AblesungsArt;
 import de.daniu.home.ablesung.db.AblesungEntity;
 import de.daniu.home.ablesung.db.AblesungRepository;
 import org.junit.Test;
@@ -14,14 +15,15 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class AblesungServiceImplTest {
+public class RepositoryAblesungServiceTest {
     @InjectMocks
-    private AblesungServiceImpl ablesungService;
+    private RepositoryAblesungService ablesungService = new RepositoryAblesungService(AblesungsArt.WATER);
 
     @Mock
     private AblesungRepository repository;
@@ -48,11 +50,11 @@ public class AblesungServiceImplTest {
         List<AblesungEntity> fromRepo = Arrays.asList(mock(AblesungEntity.class), mock(AblesungEntity.class), mock(AblesungEntity.class));
         LocalDate von = LocalDate.of(2018, 9, 1);
         LocalDate bis = LocalDate.of(2018, 9, 30);
-        when(repository.findByDatumBetween(von, bis)).thenReturn(fromRepo);
+        when(repository.streamByArtAndDatumBetween(AblesungsArt.WATER, von, bis)).thenReturn(fromRepo.stream());
 
-        List<? extends Ablesung> ablesungen = ablesungService.getAblesungen(von, bis);
+        List<Ablesung> ablesungen = ablesungService.getAblesungen(von, bis).collect(Collectors.toList());
 
-        verify(repository).findByDatumBetween(von, bis);
-        assertThat(ablesungen).isSameAs(fromRepo);
+        verify(repository).streamByArtAndDatumBetween(AblesungsArt.WATER, von, bis);
+        assertThat(ablesungen).isEqualTo(fromRepo);
     }
 }

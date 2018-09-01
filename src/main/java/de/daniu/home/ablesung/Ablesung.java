@@ -6,4 +6,5 @@ import java.time.LocalDate;
 public interface Ablesung {
     LocalDate getDatum();
     BigDecimal getWert();
+    AblesungsArt getAblesungsArt();
 }
