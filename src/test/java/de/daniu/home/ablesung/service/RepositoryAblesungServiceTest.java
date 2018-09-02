@@ -1,7 +1,6 @@
 package de.daniu.home.ablesung.service;
 
 import de.daniu.home.ablesung.Ablesung;
-import de.daniu.home.ablesung.AblesungsArt;
 import de.daniu.home.ablesung.db.AblesungEntity;
 import de.daniu.home.ablesung.db.AblesungRepository;
 import org.junit.Test;
@@ -23,10 +22,13 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class RepositoryAblesungServiceTest {
     @InjectMocks
-    private RepositoryAblesungService ablesungService = new RepositoryAblesungService(AblesungsArt.WATER);
+    private RepositoryAblesungService ablesungService;
 
     @Mock
     private AblesungRepository repository;
+
+    private final LocalDate von = LocalDate.of(2018, 9, 1);
+    private final LocalDate bis = LocalDate.of(2018, 9, 30);
 
     @Test
     public void addAblesung() {
@@ -46,15 +48,26 @@ public class RepositoryAblesungServiceTest {
     }
 
     @Test
-    public void getAblesungen() {
+    public void getAblesungenByDate() {
         List<AblesungEntity> fromRepo = Arrays.asList(mock(AblesungEntity.class), mock(AblesungEntity.class), mock(AblesungEntity.class));
         LocalDate von = LocalDate.of(2018, 9, 1);
         LocalDate bis = LocalDate.of(2018, 9, 30);
-        when(repository.streamByArtAndDatumBetween(AblesungsArt.WATER, von, bis)).thenReturn(fromRepo.stream());
+        when(repository.streamByDatumBetween(von, bis)).thenReturn(fromRepo.stream());
 
         List<Ablesung> ablesungen = ablesungService.getAblesungen(von, bis).collect(Collectors.toList());
 
-        verify(repository).streamByArtAndDatumBetween(AblesungsArt.WATER, von, bis);
+        verify(repository).streamByDatumBetween(von, bis);
+        assertThat(ablesungen).isEqualTo(fromRepo);
+    }
+    @Test
+    public void getAblesungenByMeterAndDate() {
+        List<AblesungEntity> fromRepo = Arrays.asList(mock(AblesungEntity.class), mock(AblesungEntity.class), mock(AblesungEntity.class));
+        String meterId = "meter";
+        when(repository.streamByMeterIdAndDatumBetween(meterId, von, bis)).thenReturn(fromRepo.stream());
+
+        List<Ablesung> ablesungen = ablesungService.getAblesungen(meterId, von, bis).collect(Collectors.toList());
+
+        verify(repository).streamByMeterIdAndDatumBetween(meterId, von, bis);
         assertThat(ablesungen).isEqualTo(fromRepo);
     }
 }
