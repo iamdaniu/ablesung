@@ -14,7 +14,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -52,22 +51,23 @@ public class RepositoryAblesungServiceTest {
         List<AblesungEntity> fromRepo = Arrays.asList(mock(AblesungEntity.class), mock(AblesungEntity.class), mock(AblesungEntity.class));
         LocalDate von = LocalDate.of(2018, 9, 1);
         LocalDate bis = LocalDate.of(2018, 9, 30);
-        when(repository.streamByDatumBetween(von, bis)).thenReturn(fromRepo.stream());
+        when(repository.findByDatumBetween(von, bis)).thenReturn(fromRepo);
 
-        List<Ablesung> ablesungen = ablesungService.getAblesungen(von, bis).collect(Collectors.toList());
+        List<Ablesung> ablesungen = ablesungService.getAblesungen(von, bis);
 
-        verify(repository).streamByDatumBetween(von, bis);
+        verify(repository).findByDatumBetween(von, bis);
         assertThat(ablesungen).isEqualTo(fromRepo);
     }
+
     @Test
     public void getAblesungenByMeterAndDate() {
         List<AblesungEntity> fromRepo = Arrays.asList(mock(AblesungEntity.class), mock(AblesungEntity.class), mock(AblesungEntity.class));
         String meterId = "meter";
-        when(repository.streamByMeterIdAndDatumBetween(meterId, von, bis)).thenReturn(fromRepo.stream());
+        when(repository.findByMeterIdAndDatumBetween(meterId, von, bis)).thenReturn(fromRepo);
 
-        List<Ablesung> ablesungen = ablesungService.getAblesungen(meterId, von, bis).collect(Collectors.toList());
+        List<Ablesung> ablesungen = ablesungService.getAblesungen(meterId, von, bis);
 
-        verify(repository).streamByMeterIdAndDatumBetween(meterId, von, bis);
+        verify(repository).findByMeterIdAndDatumBetween(meterId, von, bis);
         assertThat(ablesungen).isEqualTo(fromRepo);
     }
 }

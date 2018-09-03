@@ -8,8 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.function.Function;
-import java.util.stream.Stream;
+import java.util.ArrayList;
+import java.util.List;
+
 
 @Service
 public class RepositoryAblesungService implements AblesungService {
@@ -23,12 +24,13 @@ public class RepositoryAblesungService implements AblesungService {
         repository.save(MAPPER.from(ablesung));
     }
 
-    public Stream<Ablesung> getAblesungen(LocalDate von, LocalDate bis) {
-        return repository.streamByDatumBetween(von, bis)
-                .map(Function.identity());
+    @Override
+    public List<Ablesung> getAblesungen(LocalDate von, LocalDate bis) {
+        return new ArrayList<>(repository.findByDatumBetween(von, bis));
     }
-    public Stream<Ablesung> getAblesungen(String meterId, LocalDate von, LocalDate bis) {
-        return repository.streamByMeterIdAndDatumBetween(meterId, von, bis)
-                .map(Function.identity());
+
+    @Override
+    public List<Ablesung> getAblesungen(String meterId, LocalDate von, LocalDate bis) {
+        return new ArrayList<>(repository.findByMeterIdAndDatumBetween(meterId, von, bis));
     }
 }

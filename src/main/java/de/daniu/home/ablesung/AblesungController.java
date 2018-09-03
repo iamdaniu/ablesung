@@ -25,16 +25,14 @@ public class AblesungController {
     @GetMapping
     public List<Ablesung> getAblesungen(@RequestParam(defaultValue = DEFAULT_VON_DATE) LocalDate von,
                                         @RequestParam(defaultValue = DEFAULT_BIS_DATE) LocalDate bis) {
-        return service.getAblesungen(von, bis)
-                .collect(toList());
+        return service.getAblesungen(von, bis);
     }
 
     @GetMapping(value = "/meter/{$meterId}")
     public List<Ablesung> getAblesungen(@PathParam("meterId") String meterId,
                                         @RequestParam(defaultValue = DEFAULT_VON_DATE) LocalDate von,
                                         @RequestParam(defaultValue = DEFAULT_BIS_DATE) LocalDate bis) {
-        return service.getAblesungen(meterId, von, bis)
-                .collect(toList());
+        return service.getAblesungen(meterId, von, bis);
     }
 
     @PostMapping
