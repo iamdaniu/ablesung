@@ -2,6 +2,7 @@ package de.daniu.home.ablesung.service;
 
 import de.daniu.home.ablesung.Ablesung;
 import de.daniu.home.ablesung.AblesungService;
+import de.daniu.home.ablesung.db.AblesungEntity;
 import de.daniu.home.ablesung.db.AblesungRepository;
 import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +22,8 @@ public class RepositoryAblesungService implements AblesungService {
 
     @Override
     public void addAblesung(Ablesung ablesung) {
-        repository.save(MAPPER.from(ablesung));
+        AblesungEntity entity = MAPPER.from(ablesung);
+        repository.save(entity);
     }
 
     @Override

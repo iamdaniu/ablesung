@@ -1,17 +1,15 @@
 package de.daniu.home.ablesung;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import javax.websocket.server.PathParam;
+import java.math.BigDecimal;
+import java.net.URI;
 import java.time.LocalDate;
 import java.util.List;
-
-import static java.util.stream.Collectors.toList;
 
 @Controller
 @RequestMapping(value = "/ablesungen")
@@ -28,15 +26,31 @@ public class AblesungController {
         return service.getAblesungen(von, bis);
     }
 
-    @GetMapping(value = "/meter/{$meterId}")
-    public List<Ablesung> getAblesungen(@PathParam("meterId") String meterId,
+    @GetMapping(value = "/meter/{meterId}")
+    public List<Ablesung> getAblesungen(@PathVariable("meterId") String meterId,
                                         @RequestParam(defaultValue = DEFAULT_VON_DATE) LocalDate von,
                                         @RequestParam(defaultValue = DEFAULT_BIS_DATE) LocalDate bis) {
         return service.getAblesungen(meterId, von, bis);
     }
 
+    @PostMapping(value = "/meter/{meterId}")
+    public ResponseEntity<Ablesung> addAblesung(@PathVariable("meterId") String meterId, @RequestParam BigDecimal wert) {
+        Ablesung ablesung = Ablesung.SimpleAblesung.builder()
+                .wert(wert)
+                .meterId(meterId)
+                .datum(LocalDate.now())
+                .build();
+        service.addAblesung(ablesung);
+
+        URI uri = ServletUriComponentsBuilder.fromHttpUrl("http://localhost:8080")
+                .path("/ablesungen").build()
+                .toUri();
+
+        return ResponseEntity.created(uri).body(ablesung);
+    }
+
     @PostMapping
-    public void addMapping(@RequestParam Ablesung ablesung) {
+    public void addAblesungen(@RequestParam Ablesung ablesung) {
         service.addAblesung(ablesung);
     }
 }
