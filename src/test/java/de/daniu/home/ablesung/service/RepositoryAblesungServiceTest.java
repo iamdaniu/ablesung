@@ -10,7 +10,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
@@ -24,6 +23,8 @@ public class RepositoryAblesungServiceTest {
     private RepositoryAblesungService ablesungService;
 
     @Mock
+    private AblesungEntityMapper mapper;
+    @Mock
     private AblesungRepository repository;
 
     private final LocalDate von = LocalDate.of(2018, 9, 1);
@@ -32,18 +33,14 @@ public class RepositoryAblesungServiceTest {
     @Test
     public void addAblesung() {
         Ablesung ablesung = mock(Ablesung.class);
-        LocalDate datum = LocalDate.of(2018, 9, 1);
-        when(ablesung.getDatum()).thenReturn(datum);
-        BigDecimal value = BigDecimal.TEN;
-        when(ablesung.getWert()).thenReturn(value);
+        AblesungEntity ablesungEntity = mock(AblesungEntity.class);
+        when(mapper.from(ablesung)).thenReturn(ablesungEntity);
         ArgumentCaptor<AblesungEntity> savedCaptor = ArgumentCaptor.forClass(AblesungEntity.class);
 
         ablesungService.addAblesung(ablesung);
 
         verify(repository).save(savedCaptor.capture());
-        AblesungEntity captured = savedCaptor.getValue();
-        assertThat(captured.getDatum()).isEqualTo(datum);
-        assertThat(captured.getWert()).isEqualByComparingTo(BigDecimal.TEN);
+        assertThat(savedCaptor.getValue()).isSameAs(ablesungEntity);
     }
 
     @Test

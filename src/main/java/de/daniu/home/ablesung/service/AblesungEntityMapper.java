@@ -4,7 +4,7 @@ import de.daniu.home.ablesung.Ablesung;
 import de.daniu.home.ablesung.db.AblesungEntity;
 import org.mapstruct.Mapper;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface AblesungEntityMapper {
     AblesungEntity from(Ablesung ablesung);
 }
