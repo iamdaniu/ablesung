@@ -1,5 +1,7 @@
 package de.daniu.home.ablesung;
 
+import de.daniu.home.ablesung.db.DbConfiguration;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,6 +9,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.math.BigDecimal;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -18,11 +24,33 @@ public class AblesungApplicationIntegrationTests {
 	@Autowired
 	private AblesungService ablesungService;
 
+	@Autowired
+    private DbConfiguration dbConfiguration;
+
 	@Test
 	public void contextLoads() {
 	}
 
+	@Ignore // only works when config server is running, to test db access
 	@Test
+	public void testDb() throws Exception {
+		try (Connection conn = createConnection();
+             Statement statement = conn.createStatement()) {
+            statement.execute("drop table if exists test_table");
+            statement.execute("create table test_table (meter_id varchar(100), value decimal, datum date)");
+            int columns = statement.executeUpdate("insert into test_table values('test_meter', 123.45, '2018-12-31')");
+            assertThat(columns).isEqualTo(1);
+            columns = statement.executeUpdate("delete from test_table where meter_id = 'test_meter'");
+            assertThat(columns).isEqualTo(1);
+            statement.execute("drop table test_table");
+        }
+	}
+
+    private Connection createConnection() throws SQLException {
+        return DriverManager.getConnection(dbConfiguration.getUrl(), dbConfiguration.getUsername(), dbConfiguration.getPassword());
+    }
+
+    @Test
 	public void ablesungStored() {
 		Ablesung ablesung = Ablesung.SimpleAblesung.builder()
 				.datum(LocalDate.now())

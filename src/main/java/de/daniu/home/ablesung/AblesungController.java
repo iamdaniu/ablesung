@@ -14,22 +14,26 @@ import java.util.List;
 @Controller
 @RequestMapping(value = "/ablesungen")
 public class AblesungController {
-    private static final String DEFAULT_VON_DATE = "1999-01-01";
-    private static final String DEFAULT_BIS_DATE = "3000-12-31";
+    private static final LocalDate DEFAULT_VON_DATE = LocalDate.of(1999, 1, 1);
+    private static final LocalDate DEFAULT_BIS_DATE = LocalDate.of(3000, 2, 1);
 
     @Autowired
     private AblesungService service;
 
     @GetMapping
-    public List<Ablesung> getAblesungen(@RequestParam(defaultValue = DEFAULT_VON_DATE) LocalDate von,
-                                        @RequestParam(defaultValue = DEFAULT_BIS_DATE) LocalDate bis) {
+    public List<Ablesung> getAblesungen(@RequestParam LocalDate von,
+                                        @RequestParam LocalDate bis) {
+        von = von != null ? von : DEFAULT_VON_DATE;
+        bis = bis != null ? bis : DEFAULT_BIS_DATE;
         return service.getAblesungen(von, bis);
     }
 
     @GetMapping(value = "/meter/{meterId}")
     public List<Ablesung> getAblesungen(@PathVariable("meterId") String meterId,
-                                        @RequestParam(defaultValue = DEFAULT_VON_DATE) LocalDate von,
-                                        @RequestParam(defaultValue = DEFAULT_BIS_DATE) LocalDate bis) {
+                                        @RequestParam LocalDate von,
+                                        @RequestParam LocalDate bis) {
+        von = von != null ? von : DEFAULT_VON_DATE;
+        bis = bis != null ? bis : DEFAULT_BIS_DATE;
         return service.getAblesungen(meterId, von, bis);
     }
 
