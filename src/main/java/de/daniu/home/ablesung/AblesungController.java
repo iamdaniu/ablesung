@@ -38,11 +38,13 @@ public class AblesungController {
     }
 
     @PostMapping(value = "/meter/{meterId}")
-    public ResponseEntity<Ablesung> addAblesung(@PathVariable("meterId") String meterId, @RequestParam BigDecimal wert) {
+    public ResponseEntity<Ablesung> addAblesung(@PathVariable("meterId") String meterId,
+                                                @RequestParam LocalDate datum,
+                                                @RequestParam BigDecimal wert) {
         Ablesung ablesung = Ablesung.SimpleAblesung.builder()
                 .wert(wert)
                 .meterId(meterId)
-                .datum(LocalDate.now())
+                .datum(datum)
                 .build();
         service.addAblesung(ablesung);
 
