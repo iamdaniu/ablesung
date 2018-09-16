@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Readings Summary</title>
+</head>
+<body>
+<h1>Readings List</h1>
+<!--<a href="addPerson">Add Person</a>-->
+<br/><br/>
+<div>
+    <table border="1">
+        <tr>
+            <th>Datum</th>
+            <th>Meter</th>
+            <th>Wert</th>
+        </tr>
+        <tr th:each="reading : ${readings}">
+            <td th:utext="${reading.datum}">...</td>
+            <td th:utext="${reading.meterId}">...</td>
+            <td th:utext="${reading.wert}">...</td>
+        </tr>
+    </table>
+</div>
+</body>
+</html>
