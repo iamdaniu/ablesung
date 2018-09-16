@@ -6,6 +6,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.math.BigDecimal;
@@ -20,6 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
+@ActiveProfiles("test")
 public class AblesungApplicationIntegrationTests {
 	@Autowired
 	private AblesungService ablesungService;
@@ -35,7 +37,7 @@ public class AblesungApplicationIntegrationTests {
 	@Test
 	public void testDb() throws Exception {
 		try (Connection conn = createConnection();
-             Statement statement = conn.createStatement()) {
+            Statement statement = conn.createStatement()) {
             statement.execute("drop table if exists test_table");
             statement.execute("create table test_table (meter_id varchar(100), value decimal, datum date)");
             int columns = statement.executeUpdate("insert into test_table values('test_meter', 123.45, '2018-12-31')");
@@ -50,6 +52,7 @@ public class AblesungApplicationIntegrationTests {
         return DriverManager.getConnection(dbConfiguration.getUrl(), dbConfiguration.getUsername(), dbConfiguration.getPassword());
     }
 
+    @Ignore // we should have a separate test db to test this, set up and add to config
     @Test
 	public void ablesungStored() {
 		Ablesung ablesung = Ablesung.SimpleAblesung.builder()
