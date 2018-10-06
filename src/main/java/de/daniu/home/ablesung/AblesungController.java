@@ -6,8 +6,10 @@ import java.math.BigDecimal;
 import java.net.URI;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.function.BiFunction;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -28,6 +30,9 @@ public class AblesungController {
     @Autowired
     private AblesungService service;
 
+    @Autowired
+    private Environment environment;
+
     @GetMapping
     public List<Ablesung> getAblesungen(@RequestParam(required = false) @DateTimeFormat(iso = DATE) LocalDate von,
             @RequestParam(required = false) @DateTimeFormat(iso = DATE) LocalDate bis) {
@@ -37,19 +42,23 @@ public class AblesungController {
     }
 
     @GetMapping(value = "/meter/{meterId}")
-    public List<Ablesung> getAblesungen(@PathVariable("meterId") String meterId,
+    public String getAblesungen(Model model,
+            @PathVariable("meterId") String meterId,
             @RequestParam(required = false) @DateTimeFormat(iso = DATE) LocalDate von,
             @RequestParam(required = false) @DateTimeFormat(iso = DATE) LocalDate bis) {
-        LocalDate vonDatum = von != null ? von : DEFAULT_VON_DATE;
-        LocalDate bisDatum = bis != null ? bis : DEFAULT_BIS_DATE;
-        return service.getAblesungen(meterId, vonDatum, bisDatum);
+        addListToModel(model, von, bis, (v, b) -> service.getAblesungen(meterId, v, b));
+        return "readingsList";
     }
 
     @GetMapping(value = "/readingsList")
     public String getAblesungen(Model model) {
-        List<Ablesung> ablesungen = service.getAblesungen(DEFAULT_VON_DATE, DEFAULT_BIS_DATE);
-        model.addAttribute("readings", ablesungen);
+        addListToModel(model, DEFAULT_VON_DATE, DEFAULT_BIS_DATE, service::getAblesungen);
         return "readingsList";
+    }
+
+    @GetMapping(value="input")
+    public String inputValues() {
+        return "inputReadings";
     }
 
     @PostMapping(value = "/meter/{meterId}")
@@ -62,7 +71,10 @@ public class AblesungController {
                 .build();
         service.addAblesung(ablesung);
 
-        URI uri = ServletUriComponentsBuilder.fromHttpUrl("http://localhost:8100").path("/readingsList").build()
+        URI uri = ServletUriComponentsBuilder.fromHttpUrl("http://localhost")
+                .port(environment.getProperty("server.port"))
+                .path("/readingsList")
+                .build()
                 .toUri();
 
         return ResponseEntity.created(uri).body(ablesung);
@@ -71,5 +83,13 @@ public class AblesungController {
     @PostMapping
     public void addAblesungen(@RequestParam Ablesung ablesung) {
         service.addAblesung(ablesung);
+    }
+
+    private static void addListToModel(Model model, LocalDate von, LocalDate bis,
+                                       BiFunction<LocalDate, LocalDate, List<Ablesung>> getList) {
+        LocalDate vonDatum = von != null ? von : DEFAULT_VON_DATE;
+        LocalDate bisDatum = bis != null ? bis : DEFAULT_BIS_DATE;
+        List<Ablesung> ablesungen = getList.apply(vonDatum, bisDatum);
+        model.addAttribute("readings", ablesungen);
     }
 }
